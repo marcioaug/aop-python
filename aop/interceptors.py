@@ -1,18 +1,18 @@
-import json
-import urllib
 import logging
-
 
 from springpython.aop import MethodInterceptor
 
-URL = 'https://query.yahooapis.com/v1/public/yql?'
 
+class CacheInterceptor(MethodInterceptor):
+    cache = {}
 
-class RequestInterceptor(MethodInterceptor):
     def invoke(self, invocation):
-        return json.loads(
-            urllib.urlopen(URL + urllib.urlencode(invocation.proceed())).read()
-        )['query']['results']['channel']
+        key = invocation.method_name + invocation.args[0]
+
+        if key not in self.cache.keys():
+            self.cache[key] = invocation.proceed()
+
+        return self.cache[key]
 
 
 class LoggingInterceptor(MethodInterceptor):

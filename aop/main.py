@@ -4,7 +4,7 @@ from springpython.aop import ProxyFactoryObject, RegexpMethodPointcutAdvisor
 
 from weather_service import WeatherService
 from weather_service_aop import WeatherServiceAOP
-from interceptors import RequestInterceptor, LoggingInterceptor
+from interceptors import CacheInterceptor, LoggingInterceptor
 
 
 class ExampleApplicationContext(PythonConfig):
@@ -16,7 +16,13 @@ class ExampleApplicationContext(PythonConfig):
 
     @Object(scope.SINGLETON)
     def weather_service(self):
-        pointcut_advisor = RegexpMethodPointcutAdvisor(advice=[RequestInterceptor(), LoggingInterceptor()], patterns=[".*check_.*"])
+        pointcut_advisor = RegexpMethodPointcutAdvisor(
+            advice=[
+                LoggingInterceptor(),
+                CacheInterceptor()
+            ],
+            patterns=[".*check_.*"]
+        )
 
         return ProxyFactoryObject(
             target=self.target_weather_service(),
